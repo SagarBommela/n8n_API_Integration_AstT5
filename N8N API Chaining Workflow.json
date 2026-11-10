@@ -1,0 +1,184 @@
+{
+  "name": "N8N API Chaining Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "45318a8a-7594-4b18-88f1-84b7cf0beb23",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ad1102e6-800c-4bd0-b89e-c70f678f999b",
+              "name": "username",
+              "value": "Alice",
+              "type": "string"
+            },
+            {
+              "id": "aa161a22-d385-4f3d-a1e0-a911bd03a6fe",
+              "name": "department",
+              "value": "Engineering",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "2b83505a-d694-4d48-a003-336cc97d77c0",
+      "name": "Set Base User"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://jsonplaceholder.typicode.com/posts",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"Log entry for {{ $('Set Base User').item.json.username }}\",\n  \"body\": \"User-Agent utilized was {{ $json.headers['user-agent'] }}\",\n  \"timestamp\": \"{{ $now.minus({ hours: 1 }).toFormat('yyyy-MM-dd HH:mm:ss') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        672,
+        0
+      ],
+      "id": "cd0558c5-ad63-4a6e-ba02-0f3c6f62d6ee",
+      "name": "Create Log Entry"
+    },
+    {
+      "parameters": {
+        "url": "https://postman-echo.com/headers",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Transaction-Time ",
+              "value": "={{$now }} {{ $now.toISOString() }}"
+            },
+            {
+              "name": "X-User-Dept",
+              "value": "={{ $json.department }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "1248a1d2-0279-4d52-8792-b169fc76571e",
+      "name": "Postman Echo Headers"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a3918b9a-573f-4fd3-a33c-9728f4b77bd5",
+              "name": "executionId",
+              "value": "={{ $executionId }}",
+              "type": "string"
+            },
+            {
+              "id": "452d5f49-ea1d-4975-92cb-53fdf7e97f2b",
+              "name": "=workflowId",
+              "value": "={{ $workflow.id }}",
+              "type": "string"
+            },
+            {
+              "id": "d51b85c3-a6bf-48a7-8961-6448dfc21bf9",
+              "name": "finalLogTitle",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        896,
+        0
+      ],
+      "id": "aedf357b-9883-4bdd-808c-1eeec552c43b",
+      "name": "Output Metadata"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Set Base User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Base User": {
+      "main": [
+        [
+          {
+            "node": "Postman Echo Headers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postman Echo Headers": {
+      "main": [
+        [
+          {
+            "node": "Create Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Output Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "52911e0b-a91e-46f7-8083-a55f3a11a346",
+  "meta": {
+    "instanceId": "a03c7678428ef19ededbf912f16f7d5798ec7b9ab4c17f2a2def6a9e791e7215"
+  },
+  "nodeGroups": [],
+  "id": "z1BZAnZel2MfY3I8",
+  "tags": []
+}
